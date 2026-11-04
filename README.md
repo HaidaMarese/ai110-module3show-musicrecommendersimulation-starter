@@ -105,7 +105,8 @@ Run these commands from the project folder on Windows.
 
 ### Running Tests
 
-Run the starter tests from the project folder.
+Run the starter tests from the project folder. If `pytest` is missing
+from your virtual environment, install it with `python -m pip install pytest`.
 
 ```cmd
 python -m pytest
@@ -117,25 +118,51 @@ The starter test file is `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-This example shows hand-calculated scores for three starter songs.
-The CLI will score and rank the full catalog.
+Running `python -m src.main` produced the following results with the
+baseline weights.
 
 ```text
-User profile: High-Energy Pop
-Favorite genre: pop | Favorite mood: happy | Target energy: 0.85
+Loaded songs: 18
 
+High-Energy Pop - Top 5 Recommendations
+Favorite genre: pop | Favorite mood: happy | Target energy: 0.85
 1. Sunrise City | Score: 3.97
    Reasons: genre match (+2.00), mood match (+1.00), energy similarity (+0.97)
-
 2. Gym Hero | Score: 2.92
    Reasons: genre match (+2.00), energy similarity (+0.92)
-
 3. Rooftop Lights | Score: 1.91
    Reasons: mood match (+1.00), energy similarity (+0.91)
-```
+4. Dancing After Dark | Score: 0.99
+   Reasons: energy similarity (+0.99)
+5. Neon Tide | Score: 0.97
+   Reasons: energy similarity (+0.97)
 
-<!-- Replace the manual example with actual CLI output showing the top five
-     songs, scores, and reasons for each of the three taste profiles. -->
+Chill Lofi - Top 5 Recommendations
+Favorite genre: lofi | Favorite mood: chill | Target energy: 0.25
+1. Library Rain | Score: 3.90
+   Reasons: genre match (+2.00), mood match (+1.00), energy similarity (+0.90)
+2. Midnight Coding | Score: 3.83
+   Reasons: genre match (+2.00), mood match (+1.00), energy similarity (+0.83)
+3. Focus Flow | Score: 2.85
+   Reasons: genre match (+2.00), energy similarity (+0.85)
+4. Spacewalk Thoughts | Score: 1.97
+   Reasons: mood match (+1.00), energy similarity (+0.97)
+5. Coffee Shop Stories | Score: 0.88
+   Reasons: energy similarity (+0.88)
+
+Deep Intense Rock - Top 5 Recommendations
+Favorite genre: rock | Favorite mood: intense | Target energy: 0.90
+1. Storm Runner | Score: 3.99
+   Reasons: genre match (+2.00), mood match (+1.00), energy similarity (+0.99)
+2. Gym Hero | Score: 1.97
+   Reasons: mood match (+1.00), energy similarity (+0.97)
+3. Winter Signal | Score: 1.00
+   Reasons: energy similarity (+1.00)
+4. Neon Tide | Score: 0.98
+   Reasons: energy similarity (+0.98)
+5. Dancing After Dark | Score: 0.96
+   Reasons: energy similarity (+0.96)
+```
 
 <!-- Optional screenshot or video link. -->
 
@@ -167,7 +194,7 @@ Gym Hero ranked higher under the baseline because its genre matched.
 Rooftop Lights ranked higher under the mood-first strategy because its
 mood matched. Their energy similarity scores differed by only `0.01`.
 Changing the genre and mood weights reversed their order. The simulation
-will use the baseline weights.
+uses the baseline weights.
 
 ### Planned Weight Experiment
 
