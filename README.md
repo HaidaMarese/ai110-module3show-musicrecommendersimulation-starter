@@ -2,10 +2,10 @@
 
 ## Project Summary
 
-VibeFinder 1.0 is a music recommender simulation that suggests songs based
-on a listener's favorite genre, favorite mood, and target energy. It
-compares those preferences with song attributes in a CSV catalog, ranks
-the songs by score, and explains what contributed to each recommendation.
+VibeFinder 1.0 recommends songs based on a listener's favorite genre,
+favorite mood, and target energy. It compares those preferences with
+song attributes in a CSV catalog, ranks the songs by score, and explains
+what contributed to each recommendation.
 
 The catalog contains 18 songs, including 10 starter songs and eight
 fictional additions. The expanded catalog covers more genres and moods
@@ -40,9 +40,9 @@ defined in the program.
 | Deep Intense Rock | `rock` | `intense` | 0.90 |
 
 Storm Runner matches the Deep Intense Rock profile's genre and mood.
-Its energy of `0.91` is only `0.01` above the target. Library Rain matches
-the Chill Lofi profile's genre and mood and has an energy of `0.35`,
-which is `0.10` above its target.
+Its energy of `0.91` is `0.01` above the target. Library Rain matches
+the Chill Lofi profile's genre and mood. Its energy of `0.35` is `0.10`
+above that profile's target.
 
 ### Algorithm Recipe
 
@@ -125,16 +125,16 @@ python -m src.main --mode energy-focused
 For Chill Lofi, Focus Flow ranks third in Genre-First mode. In
 Energy-Focused mode, Spacewalk Thoughts moves from fourth to third.
 
-See the [AI Interactions Log](ai_interactions.md) for the scoring mode
-design and verification notes.
+See the [AI Interactions Log](ai_interactions.md) for the design and
+verification notes for the optional challenges.
 
 ### Optional Challenge 3 — Artist Diversity
 
 Use `--diversity` to apply a **0.50-point penalty** when a candidate's
 artist already appears in the selected recommendations. The app selects
 one song at a time using the adjusted scores. The penalty applies once
-per candidate and appears in the explanation when used. A repeat artist
-can still appear if the adjusted score is high enough.
+per candidate and appears in the explanation. A repeat artist can still
+appear if the adjusted score is high enough.
 
 ```cmd
 python -m src.main --diversity
@@ -142,17 +142,32 @@ python -m src.main --mode energy-focused --diversity
 ```
 
 For Chill Lofi, Midnight Coding was selected before Focus Flow. Both
-songs are by LoRoom, so Focus Flow received the artist diversity penalty
-in both modes.
+songs are by LoRoom, so Focus Flow received the penalty in both modes.
 
 | Scoring mode | Focus Flow without diversity | Focus Flow with diversity |
 |---|---|---|
 | Genre-First | Rank 3, score 2.85 | Rank 3, score 2.35 |
 | Energy-Focused | Rank 4, score 2.70 | Rank 4, score 2.20 |
 
-Both runs with diversity displayed `artist diversity penalty (-0.50)`.
-Focus Flow's score dropped in both modes, and its rank stayed the same
-within each mode.
+Both diversity runs displayed `artist diversity penalty (-0.50)` in
+Focus Flow's explanation.
+
+### Optional Challenge 4 — Visual Summary Table
+
+Use `--table` to display **Rank**, **Song**, **Artist**, **Score**, and
+**Reasons** in aligned columns. Long explanations wrap within the Reasons
+column. The default command uses the original list format. Both formats
+display the same rankings and scores for the selected options.
+
+```cmd
+python -m src.main --table
+python -m src.main --mode energy-focused --diversity --table
+```
+
+I verified the table for all three profiles. In the combined
+Energy-Focused and Artist Diversity run, Focus Flow ranked fourth for
+Chill Lofi with a score of **2.20**. Its wrapped explanation included
+`artist diversity penalty (-0.50)`.
 
 ### Running Tests
 
@@ -163,15 +178,15 @@ needs `pytest`, install it with `python -m pip install pytest`.
 python -m pytest
 ```
 
-Both starter tests in `tests/test_recommender.py` passed after the artist
-diversity update.
+Both starter tests in `tests/test_recommender.py` passed after the table
+update.
 
 ---
 
 ## Sample Recommendation Output
 
-Running `python -m src.main` produced the following results with the
-default Genre-First weights and diversity disabled.
+Running `python -m src.main` produced the following results in the
+default list format, with Genre-First weights and diversity disabled.
 
 ```text
 Loaded songs: 18

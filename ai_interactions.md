@@ -1,6 +1,6 @@
 # AI Interactions Log
 
-> **Stretch features only.** This log covers Optional Challenge 2 (Multiple Scoring Modes) and Optional Challenge 3 (Artist Diversity).
+> **Stretch features only.** This log covers Optional Challenge 2 (Multiple Scoring Modes), Optional Challenge 3 (Artist Diversity), and Optional Challenge 4 (Visual Summary Table).
 
 ---
 
@@ -106,6 +106,45 @@ Both diversity runs displayed `artist diversity penalty (-0.50)` in
 Focus Flow's explanation. Its score dropped by 0.50 and its rank stayed
 the same within each mode. Both starter tests passed.
 
+### Optional Challenge 4 — Visual Summary Table
+
+**What task did you give the agent?**
+
+I asked the VS Code coding assistant to add an optional table view for
+the top five recommendations. I wanted the table to make scores and
+reasons easier to compare across songs.
+
+**Prompts used**
+
+> Add a `--table` flag to `src/main.py` for Optional Challenge 4. Use Python’s standard library to display Rank, Song, Artist, Score, and Reasons in aligned columns. Wrap long explanations and include the artist diversity penalty whenever it applies. Keep the current list format as the default and make `--table` work with `--mode` and `--diversity`.
+
+**What did the agent generate or change?**
+
+The assistant added `--table` and a `print_recommendation_table()` helper
+in `src/main.py`. The helper formats the existing recommendation results
+as five aligned columns and wraps long explanations under Reasons. The
+default command still uses the list format.
+
+**What did you verify or fix manually?**
+
+I ran these commands after the table update.
+
+```cmd
+python -m src.main
+python -m src.main --table
+python -m src.main --mode energy-focused --diversity --table
+python -m pytest
+```
+
+I confirmed that the default run loaded 18 songs and still printed the
+original list. The table showed all five columns for all three profiles.
+The baseline table matched the list rankings and scores.
+
+In the combined run, Focus Flow by LoRoom ranked fourth for Chill Lofi
+with a score of 2.20. Its wrapped explanation included
+`artist diversity penalty (-0.50)`. Both starter tests passed after the
+table update.
+
 ---
 
 ## Design Pattern (SF10)
@@ -134,4 +173,6 @@ each contribution.
 
 Challenge 3 applies the optional artist penalty during ranking, after
 `score_song()` calculates the base score. This lets the same diversity
-rule work with either scoring mode.
+rule work with either scoring mode. Challenge 4 formats the ranked
+results after scoring and ranking, so the table works with either mode
+and with the diversity penalty enabled.
