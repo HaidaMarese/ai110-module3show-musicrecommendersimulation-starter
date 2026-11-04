@@ -2,13 +2,27 @@
 Command line runner for the Music Recommender Simulation.
 
 Loads the song catalog and displays ranked recommendations for three
-taste profiles.
+taste profiles. Optional Challenge 2 lets users choose a scoring mode
+with the --mode command-line argument.
 """
 
-from .recommender import load_songs, recommend_songs
+import argparse
+
+from .recommender import SCORING_MODES, load_songs, recommend_songs
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Rank songs for three taste profiles."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=SCORING_MODES,
+        default="genre-first",
+        help="Choose a scoring mode for Optional Challenge 2 (default: genre-first).",
+    )
+    args = parser.parse_args()
+
     songs = load_songs("data/songs.csv")
     print(f"Loaded songs: {len(songs)}")
 
@@ -31,7 +45,7 @@ def main() -> None:
     }
 
     for profile_name, user_prefs in profiles.items():
-        recommendations = recommend_songs(user_prefs, songs, k=5)
+        recommendations = recommend_songs(user_prefs, songs, k=5, mode=args.mode)
 
         print(f"\n{profile_name} - Top 5 Recommendations")
         print(
