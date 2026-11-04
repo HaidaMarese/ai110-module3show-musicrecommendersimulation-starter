@@ -355,3 +355,10 @@ additional preferences could move Midnight Coding ahead of Library Rain
 even though both tracks already matched the requested genre and mood.
 Next, I would collect listener ratings to compare which scoring choices
 people find more relevant.
+
+## Author
+
+**Haida Makouangou**  
+B.S. in Computer Science, UNC Charlotte, Cum Laude
+
+I built VibeFinder 1.0 as a project for CodePath’s AI110 course.
