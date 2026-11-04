@@ -24,11 +24,12 @@ defined in the program.
 
 - **Song.** Each record contains `id`, `title`, `artist`, `genre`, `mood`,
   `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`.
-  The scoring rule uses `genre`, `mood`, and `energy`.
+  The scoring rule uses `genre`, `mood`, and `energy`. The optional
+  diversity penalty also uses `artist`.
 - **UserProfile.** The scoring rule reads `favorite_genre`, `favorite_mood`,
   and `target_energy` from the profile.
-- **Recommender.** The recommender scores each song, records the reasons
-  for its score, and returns the five highest-scoring songs.
+- **Recommender.** The recommender scores each song, ranks the candidates,
+  and returns the top five with an explanation for each score.
 
 ### Taste Profiles
 
@@ -55,14 +56,14 @@ The default Genre-First mode uses these rules.
 4. Sort the songs from highest to lowest score and show the top five.
    Songs with equal scores keep their original CSV order.
 
-The maximum score is **4.0**. The two-point genre bonus can put a song
-from the preferred genre above one that better matches the requested
+The maximum base score is **4.0**. The two-point genre bonus can put a
+song from the preferred genre above one that better matches the requested
 mood. Gym Hero gets the full genre bonus for `pop`, while Rooftop Lights
 receives zero genre points because its label is `indie pop`.
 
 **Data flow**
 
-`Song catalog + taste profile → score each song and record reasons → sort by score → display the top five`
+`Song catalog + taste profile → score each song and record reasons → rank candidates → display the top five`
 
 ---
 
@@ -107,8 +108,8 @@ Run these commands from the project folder on Windows.
 
 ### Optional Challenge 2 — Multiple Scoring Modes
 
-The app defaults to Genre-First. To give energy similarity more weight,
-select Energy-Focused with `--mode`. Both modes use the same scoring
+The app defaults to Genre-First. Select Energy-Focused with `--mode` to
+give energy similarity more weight. Both modes use the same scoring
 formula with different weights.
 
 | Mode | Genre weight | Mood weight | Energy weight |
@@ -123,8 +124,34 @@ python -m src.main --mode energy-focused
 
 For Chill Lofi, Focus Flow ranks third in Genre-First mode. In
 Energy-Focused mode, Spacewalk Thoughts moves from fourth to third.
-See the [AI Interactions Log](ai_interactions.md) for the design and
-verification notes.
+See the [AI Interactions Log](ai_interactions.md) for the scoring mode
+design and verification notes.
+
+### Optional Challenge 3 — Artist Diversity
+
+Use `--diversity` to apply a **0.50-point penalty** when a candidate's
+artist already appears in the selected recommendations. The app selects
+one song at a time using the adjusted scores. The penalty applies once
+per candidate and appears in the explanation when used. A repeat artist
+can still appear if the adjusted score is high enough.
+
+```cmd
+python -m src.main --diversity
+python -m src.main --mode energy-focused --diversity
+```
+
+For Chill Lofi, Midnight Coding was selected before Focus Flow. Both
+songs are by LoRoom, so Focus Flow received the artist diversity penalty
+in both modes.
+
+| Scoring mode | Focus Flow without diversity | Focus Flow with diversity |
+|---|---|---|
+| Genre-First | Rank 3, score 2.85 | Rank 3, score 2.35 |
+| Energy-Focused | Rank 4, score 2.70 | Rank 4, score 2.20 |
+
+Both runs with diversity displayed `artist diversity penalty (-0.50)`.
+Focus Flow's score dropped in both modes and its rank stayed the same
+within each mode.
 
 ### Running Tests
 
@@ -135,15 +162,15 @@ needs `pytest`, install it with `python -m pip install pytest`.
 python -m pytest
 ```
 
-Both starter tests in `tests/test_recommender.py` passed after I verified
-the two scoring modes.
+Both starter tests in `tests/test_recommender.py` passed after the artist
+diversity update.
 
 ---
 
 ## Sample Recommendation Output
 
 Running `python -m src.main` produced the following results with the
-baseline Genre-First weights.
+default Genre-First weights and diversity disabled.
 
 ```text
 Loaded songs: 18
@@ -251,6 +278,9 @@ Intense Rock kept the same top-five order, although their scores changed.
 - Exact genre matching treats `pop` and `indie pop` as separate labels.
   Combined with the two-point genre bonus in the default mode, this can
   limit discovery across related genres.
+- The artist penalty considers repeat artists within a recommendation
+  list. A track with a strong base score can still rank ahead of a track
+  by a different artist after the penalty.
 - The score relies on the catalog's labels and energy values. Evaluating
   whether the suggestions fit real listeners would require their feedback.
 

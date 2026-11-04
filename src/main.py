@@ -21,6 +21,11 @@ def main() -> None:
         default="genre-first",
         help="Choose a scoring mode for Optional Challenge 2 (default: genre-first).",
     )
+    parser.add_argument(
+        "--diversity",
+        action="store_true",
+        help="Prefer different artists by subtracting 0.50 after an artist is selected.",
+    )
     args = parser.parse_args()
 
     songs = load_songs("data/songs.csv")
@@ -45,7 +50,13 @@ def main() -> None:
     }
 
     for profile_name, user_prefs in profiles.items():
-        recommendations = recommend_songs(user_prefs, songs, k=5, mode=args.mode)
+        recommendations = recommend_songs(
+            user_prefs,
+            songs,
+            k=5,
+            mode=args.mode,
+            diversity=args.diversity,
+        )
 
         print(f"\n{profile_name} - Top 5 Recommendations")
         print(

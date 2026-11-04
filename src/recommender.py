@@ -111,13 +111,63 @@ def recommend_songs(
     k: int = 5,
     *,
     mode: str = "genre-first",
+    diversity: bool = False,
 ) -> List[Tuple[Dict, float, str]]:
-    """Return the top k songs with their scores and explanations."""
+    """Return the top k songs with scores and explanations."""
+    limit = max(0, k)
+
+    # Score each song once before optional diversity selection begins.
+    scored = []
+    for csv_index, song in enumerate(songs):
+        base_score, reasons = score_song(user_prefs, song, mode=mode)
+        scored.append((csv_index, song, base_score, reasons))
+
+    if not diversity:
+        ranked = sorted(scored, key=lambda result: result[2], reverse=True)
+        return [
+            (song, score, ", ".join(reasons))
+            for _, song, score, reasons in ranked[:limit]
+        ]
+
+    remaining = scored.copy()
+    selected_artists = set()
     recommendations = []
 
-    for song in songs:
-        score, reasons = score_song(user_prefs, song, mode=mode)
-        recommendations.append((song, score, ", ".join(reasons)))
+    while remaining and len(recommendations) < limit:
+        best_index = None
+        best_tuple = None
+        best_adjusted_score = None
+        best_penalty_reason = None
 
-    recommendations.sort(key=lambda result: result[1], reverse=True)
-    return recommendations[:max(0, k)]
+        # Iterating in CSV order makes the first best candidate win ties.
+        for candidate_index, (_, song, base_score, reasons) in enumerate(remaining):
+            artist = song["artist"].strip().casefold()
+            adjusted_score = base_score
+            penalty_reason = None
+
+            if artist in selected_artists:
+                adjusted_score -= 0.50
+                penalty_reason = "artist diversity penalty (-0.50)"
+
+            if (
+                best_adjusted_score is None
+                or adjusted_score > best_adjusted_score
+            ):
+                best_index = candidate_index
+                best_tuple = (_, song, base_score, reasons)
+                best_adjusted_score = adjusted_score
+                best_penalty_reason = penalty_reason
+
+        _, song, _, reasons = best_tuple
+        selected_artist = song["artist"].strip().casefold()
+        selected_artists.add(selected_artist)
+
+        explanation_reasons = reasons.copy()
+        if best_penalty_reason:
+            explanation_reasons.append(best_penalty_reason)
+        recommendations.append(
+            (song, best_adjusted_score, ", ".join(explanation_reasons))
+        )
+        remaining.pop(best_index)
+
+    return recommendations
