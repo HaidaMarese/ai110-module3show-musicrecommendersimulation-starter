@@ -28,6 +28,11 @@ class Song:
     valence: float
     danceability: float
     acousticness: float
+    popularity: float = 0.0
+    release_decade: str = ""
+    detailed_mood: str = ""
+    instrumentalness: float = 0.0
+    vocal_language: str = ""
 
 
 @dataclass
@@ -38,6 +43,10 @@ class UserProfile:
     favorite_mood: str
     target_energy: float
     likes_acoustic: bool
+    target_release_decade: str = ""
+    target_detailed_mood: str = ""
+    target_instrumentalness: float | None = None
+    target_vocal_language: str = ""
 
 
 class Recommender:
@@ -64,7 +73,15 @@ class Recommender:
 
 def load_songs(csv_path: str) -> List[Dict]:
     """Load song dictionaries from a CSV file and convert numeric fields."""
-    numeric_fields = ("energy", "tempo_bpm", "valence", "danceability", "acousticness")
+    numeric_fields = (
+        "energy",
+        "tempo_bpm",
+        "valence",
+        "danceability",
+        "acousticness",
+        "popularity",
+        "instrumentalness",
+    )
 
     with open(csv_path, encoding="utf-8-sig", newline="") as csv_file:
         songs = list(csv.DictReader(csv_file))
@@ -78,9 +95,9 @@ def load_songs(csv_path: str) -> List[Dict]:
 
 
 def score_song(
-    user_prefs: Dict, song: Dict, *, mode: str = "genre-first"
+    user_prefs: Dict, song: Dict, *, mode: str = "genre-first", advanced: bool = False
 ) -> Tuple[float, List[str]]:
-    """Return a song's relevance score and the reasons for its points."""
+    """Return a song's relevance score and explanation reasons."""
     genre_weight, mood_weight, energy_weight = SCORING_MODES[mode]
     score = 0.0
     reasons = []
@@ -102,6 +119,36 @@ def score_song(
     score += energy_points
     reasons.append(f"energy similarity (+{energy_points:.2f})")
 
+    if advanced:
+        popularity_points = 0.25 * song.get("popularity", 0.0) / 100.0
+        score += popularity_points
+        reasons.append(f"popularity (+{popularity_points:.2f})")
+
+        target_decade = str(user_prefs.get("target_release_decade", "")).strip().casefold()
+        song_decade = str(song.get("release_decade", "")).strip().casefold()
+        if target_decade and song_decade == target_decade:
+            score += 0.20
+            reasons.append("release decade match (+0.20)")
+
+        target_detailed = str(user_prefs.get("target_detailed_mood", "")).strip().casefold()
+        song_detailed = str(song.get("detailed_mood", "")).strip().casefold()
+        if target_detailed and song_detailed == target_detailed:
+            score += 0.20
+            reasons.append("detailed mood match (+0.20)")
+
+        target_instrumental = user_prefs.get("target_instrumentalness")
+        if target_instrumental is not None:
+            instrumental_gap = abs(song["instrumentalness"] - float(target_instrumental))
+            instrumental_points = 0.20 * (1.0 - instrumental_gap)
+            score += instrumental_points
+            reasons.append(f"instrumentalness similarity (+{instrumental_points:.2f})")
+
+        target_language = str(user_prefs.get("target_vocal_language", "")).strip().casefold()
+        song_language = str(song.get("vocal_language", "")).strip().casefold()
+        if target_language and song_language == target_language:
+            score += 0.20
+            reasons.append("vocal language match (+0.20)")
+
     return score, reasons
 
 
@@ -112,6 +159,7 @@ def recommend_songs(
     *,
     mode: str = "genre-first",
     diversity: bool = False,
+    advanced: bool = False,
 ) -> List[Tuple[Dict, float, str]]:
     """Return the top k songs with scores and explanations."""
     limit = max(0, k)
@@ -119,7 +167,7 @@ def recommend_songs(
     # Score each song once before optional diversity selection begins.
     scored = []
     for csv_index, song in enumerate(songs):
-        base_score, reasons = score_song(user_prefs, song, mode=mode)
+        base_score, reasons = score_song(user_prefs, song, mode=mode, advanced=advanced)
         scored.append((csv_index, song, base_score, reasons))
 
     if not diversity:

@@ -32,6 +32,11 @@ def main() -> None:
         action="store_true",
         help="Display recommendations in aligned table format.",
     )
+    parser.add_argument(
+        "--advanced",
+        action="store_true",
+        help="Use popularity, decade, detailed mood, instrumentalness, and vocal language.",
+    )
     args = parser.parse_args()
 
     songs = load_songs("data/songs.csv")
@@ -42,16 +47,28 @@ def main() -> None:
             "favorite_genre": "pop",
             "favorite_mood": "happy",
             "target_energy": 0.85,
+            "target_release_decade": "2020s",
+            "target_detailed_mood": "uplifting",
+            "target_instrumentalness": 0.10,
+            "target_vocal_language": "English",
         },
         "Chill Lofi": {
             "favorite_genre": "lofi",
             "favorite_mood": "chill",
             "target_energy": 0.25,
+            "target_release_decade": "2020s",
+            "target_detailed_mood": "laid-back",
+            "target_instrumentalness": 0.85,
+            "target_vocal_language": "Instrumental",
         },
         "Deep Intense Rock": {
             "favorite_genre": "rock",
             "favorite_mood": "intense",
             "target_energy": 0.90,
+            "target_release_decade": "2010s",
+            "target_detailed_mood": "aggressive",
+            "target_instrumentalness": 0.10,
+            "target_vocal_language": "English",
         },
     }
 
@@ -62,6 +79,7 @@ def main() -> None:
             k=5,
             mode=args.mode,
             diversity=args.diversity,
+            advanced=args.advanced,
         )
 
         print(f"\n{profile_name} - Top 5 Recommendations")

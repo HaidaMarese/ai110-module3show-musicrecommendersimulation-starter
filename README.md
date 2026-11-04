@@ -3,14 +3,14 @@
 ## Project Summary
 
 VibeFinder 1.0 recommends songs based on a listener's favorite genre,
-favorite mood, and target energy. It compares those preferences with
-song attributes in a CSV catalog, ranks the songs by score, and explains
-what contributed to each recommendation.
+favorite mood, and target energy. It compares those preferences with song
+attributes in a CSV catalog, ranks the songs by score, and explains what
+contributed to each recommendation.
 
 The catalog contains 18 songs, including 10 starter songs and eight
-fictional additions. The expanded catalog covers more genres and moods
-and helps illustrate how scoring choices affect which songs a listener
-discovers.
+fictional additions. Optional flags let users include advanced song
+features, select a scoring mode, encourage artist diversity, or display
+the results as a table.
 
 ---
 
@@ -22,12 +22,13 @@ content-based filtering to compare item features with a listener's
 preferences. VibeFinder uses content-based filtering with taste profiles
 defined in the program.
 
-- **Song.** Each record contains `id`, `title`, `artist`, `genre`, `mood`,
-  `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`.
-  The scoring rule uses `genre`, `mood`, and `energy`. The optional
-  diversity penalty also uses `artist`.
-- **UserProfile.** The scoring rule reads `favorite_genre`, `favorite_mood`,
-  and `target_energy` from the profile.
+- **Song.** The original CSV fields are `id`, `title`, `artist`, `genre`,
+  `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`.
+  The default score uses genre, mood, and energy. The artist diversity
+  option uses `artist` during ranking. Advanced scoring uses five
+  additional fields documented below.
+- **UserProfile.** The default scoring rule reads `favorite_genre`,
+  `favorite_mood`, and `target_energy` from the profile.
 - **Recommender.** The recommender scores each song, ranks the candidates,
   and returns the top five with an explanation for each score.
 
@@ -46,7 +47,7 @@ above that profile's target.
 
 ### Algorithm Recipe
 
-The default Genre-First mode uses these rules.
+The default Genre-First run uses these rules.
 
 1. Add **2.0 points** for an exact genre match.
 2. Add **1.0 point** for an exact mood match.
@@ -56,10 +57,11 @@ The default Genre-First mode uses these rules.
 4. Sort the songs from highest to lowest score and show the top five.
    Songs with equal scores keep their original CSV order.
 
-The maximum base score is **4.0**. The two-point genre bonus can put a
-song from the preferred genre above one that better matches the requested
-mood. Gym Hero gets the full genre bonus for `pop`, while Rooftop Lights
-receives zero genre points because its label is `indie pop`.
+The maximum base score is **4.0** before advanced feature contributions
+or artist diversity adjustments. In Genre-First mode, the two-point
+genre bonus can put a song from the preferred genre above one that better
+matches the requested mood. Gym Hero earns the genre bonus for `pop`,
+while Rooftop Lights earns zero genre points for its `indie pop` label.
 
 **Data flow**
 
@@ -106,10 +108,42 @@ Run these commands from the project folder on Windows.
    python -m src.main
    ```
 
+### Optional Challenge 1 — Advanced Song Features
+
+Use `--advanced` to include five additional fields in scoring. All 18
+songs have values for these fields. The values are illustrative metadata
+for the simulation.
+
+| CSV field | Contribution to the advanced score |
+|---|---|
+| `popularity` | Adds points based on a popularity value from 0 to 100. |
+| `release_decade` | Adds a bonus when the release decade matches the profile's preference. |
+| `detailed_mood` | Adds a bonus when the more specific mood label matches the profile's preference. |
+| `instrumentalness` | Adds similarity points based on how close the song's 0–1 value is to the profile's target. |
+| `vocal_language` | Adds a bonus when the vocal-language label matches the profile's preference. The catalog uses `Instrumental` for tracks tagged without vocals. |
+
+```cmd
+python -m src.main --advanced
+python -m src.main --advanced --mode energy-focused --diversity --table
+```
+
+For Chill Lofi, Midnight Coding moved from **#2 at 3.83** in the default
+run to **#1 at 4.81** with `--advanced`. Its explanation showed
+contributions from all five fields. A separate check held the profile
+fixed and changed one field at a time on a copy of Midnight Coding.
+Each of the five changes affected the score independently.
+
+The combined command also worked. Midnight Coding ranked **#1 at 4.64**,
+and Focus Flow ranked **#4 at 2.99** with `artist diversity penalty (-0.50)`
+visible in the table.
+
+See the [AI Interactions Log](ai_interactions.md) for the prompts and
+individual feature checks.
+
 ### Optional Challenge 2 — Multiple Scoring Modes
 
 The app defaults to Genre-First. Select Energy-Focused with `--mode` to
-give energy similarity more weight. Both modes use the same scoring
+give energy similarity more weight. Both modes use the same base scoring
 formula with different weights.
 
 | Mode | Genre weight | Mood weight | Energy weight |
@@ -124,9 +158,6 @@ python -m src.main --mode energy-focused
 
 For Chill Lofi, Focus Flow ranks third in Genre-First mode. In
 Energy-Focused mode, Spacewalk Thoughts moves from fourth to third.
-
-See the [AI Interactions Log](ai_interactions.md) for the design and
-verification notes for the optional challenges.
 
 ### Optional Challenge 3 — Artist Diversity
 
@@ -164,9 +195,9 @@ python -m src.main --table
 python -m src.main --mode energy-focused --diversity --table
 ```
 
-I verified the table for all three profiles. In the combined
-Energy-Focused and Artist Diversity run, Focus Flow ranked fourth for
-Chill Lofi with a score of **2.20**. Its wrapped explanation included
+I verified the table for all three profiles. In the Energy-Focused run
+with artist diversity and table output, Focus Flow ranked fourth for
+Chill Lofi at **2.20**. Its wrapped explanation included
 `artist diversity penalty (-0.50)`.
 
 ### Running Tests
@@ -178,15 +209,16 @@ needs `pytest`, install it with `python -m pip install pytest`.
 python -m pytest
 ```
 
-Both starter tests in `tests/test_recommender.py` passed after the table
-update.
+Both starter tests in `tests/test_recommender.py` passed after the advanced
+song features update.
 
 ---
 
 ## Sample Recommendation Output
 
-Running `python -m src.main` produced the following results in the
-default list format, with Genre-First weights and diversity disabled.
+Running `python -m src.main` produced the following results in the default
+list format, with Genre-First weights and the optional scoring adjustments
+disabled.
 
 ```text
 Loaded songs: 18
@@ -288,17 +320,18 @@ Intense Rock kept the same top-five order, although their scores changed.
 ## Limitations and Risks
 
 - The small catalog limits the range of songs the system can suggest.
-- Each profile represents one favorite genre, one favorite mood, and one
-  energy target. Someone who enjoys both chill lofi and chill ambient
-  can specify only one favorite genre per profile.
+- Each baseline profile represents one favorite genre, one favorite mood,
+  and one energy target. Someone who enjoys both chill lofi and chill
+  ambient can specify only one favorite genre per profile.
 - Exact genre matching treats `pop` and `indie pop` as separate labels.
   Combined with the two-point genre bonus in the default mode, this can
   limit discovery across related genres.
 - The artist penalty considers repeat artists within a recommendation
   list. A track with a strong base score can still rank ahead of a track
   by a different artist after the penalty.
-- The score relies on the catalog's labels and energy values. Evaluating
-  whether the suggestions fit real listeners would require their feedback.
+- The advanced metadata is illustrative. Popularity points can favor
+  songs with higher assigned values, and evaluating whether the rankings
+  fit real listeners would require their feedback.
 
 ---
 
@@ -317,5 +350,8 @@ I was surprised that Gym Hero ranked above Rooftop Lights for a listener
 looking for happy pop. The exact genre bonus outweighed the mood match.
 The CLI experiment showed how weighting energy more heavily could bring
 a song from another genre higher in the list when it matched the mood
-and came closer to the target energy. Next, I would collect listener
-ratings to compare which weighting strategy people find more relevant.
+and came closer to the target energy. The advanced run showed how
+additional preferences could move Midnight Coding ahead of Library Rain
+even though both tracks already matched the requested genre and mood.
+Next, I would collect listener ratings to compare which scoring choices
+people find more relevant.

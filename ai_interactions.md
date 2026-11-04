@@ -1,12 +1,75 @@
 # AI Interactions Log
 
-> **Stretch features only.** This log covers Optional Challenge 2 (Multiple Scoring Modes), Optional Challenge 3 (Artist Diversity), and Optional Challenge 4 (Visual Summary Table).
+> **Stretch features only.** This log covers all four optional challenges.
 
 ---
 
 ## Agentic Workflow (SF8)
 
 > Document your experience using an AI agent (e.g., Cursor Agent, Claude, Copilot) to make multi-step changes autonomously.
+
+### Optional Challenge 1 — Advanced Song Features
+
+**What task did you give the agent?**
+
+I asked the VS Code coding assistant to add five illustrative attributes
+to all 18 songs and use them in scoring when `--advanced` is enabled.
+I wanted the default rankings preserved and the new flag to work with
+both scoring modes, artist diversity, and table output.
+
+**Prompts used**
+
+> Implement Optional Challenge 1. Add five new columns to all 18 songs in `data/songs.csv`: `popularity` (0–100), `release_decade`, `detailed_mood`, `instrumentalness` (0–1), and `vocal_language`. Preserve the existing rows and columns, and treat the added values as illustrative metadata. Add an `--advanced` option that uses all five attributes in scoring and explains how each contributed. Keep the existing scores and rankings when `--advanced` is omitted. Make the option work with `--mode`, `--diversity`, and `--table`. Show me how to verify that each new attribute can affect a score.
+
+For the follow-up check, I asked the assistant to use the existing scoring
+function with the Chill Lofi profile and Midnight Coding. I asked it to
+start with a fresh copy of the song for each trial, change one field at a
+time, and report the original score, modified score, and difference.
+
+**What did the agent generate or change?**
+
+- In `data/songs.csv`, the assistant added `popularity`, `release_decade`,
+  `detailed_mood`, `instrumentalness`, and `vocal_language` as illustrative
+  metadata.
+- In `src/recommender.py`, it added scoring and explanations for the five
+  attributes.
+- In `src/main.py`, it added the `--advanced` flag.
+
+**What did you verify or fix manually?**
+
+I reviewed the CSV diff and confirmed that the original 18 songs and
+their existing fields were preserved. I ran the default, advanced, and
+combined commands from the project folder.
+
+```cmd
+python -m src.main
+python -m src.main --advanced
+python -m src.main --advanced --mode energy-focused --diversity --table
+python -m pytest
+git diff --check
+```
+
+The default run matched the README baseline. For Chill Lofi, Midnight
+Coding moved from #2 at 3.83 in the default run to #1 at 4.81 with
+`--advanced`. Its explanation showed contributions from all five new
+fields. In the combined run, Midnight Coding ranked #1 at 4.64. Focus Flow
+ranked #4 at 2.99, and the table showed its
+`artist diversity penalty (-0.50)`.
+
+I reviewed the assistant's individual feature checks. The Chill Lofi
+profile stayed fixed, and each trial changed one field on a fresh copy
+of Midnight Coding. The original advanced score was **4.814**.
+
+| Field changed | Replacement | Modified score | Change from original |
+|---|---|---:|---:|
+| Popularity | `50` | 4.749 | -0.065 |
+| Release decade | `2010s` | 4.614 | -0.200 |
+| Detailed mood | `energetic` | 4.614 | -0.200 |
+| Instrumentalness | `0.10` | 4.670 | -0.144 |
+| Vocal language | `English` | 4.614 | -0.200 |
+
+Each field changed the score independently in this check. Both starter
+tests passed, and `git diff --check` reported no whitespace errors.
 
 ### Optional Challenge 2 — Multiple Scoring Modes
 
@@ -171,8 +234,8 @@ passes it to `recommend_songs()`. That function passes the mode to
 `score_song()`, which uses the selected weights to calculate and explain
 each contribution.
 
-Challenge 3 applies the optional artist penalty during ranking, after
-`score_song()` calculates the base score. This lets the same diversity
-rule work with either scoring mode. Challenge 4 formats the ranked
-results after scoring and ranking, so the table works with either mode
-and with the diversity penalty enabled.
+Challenge 1 adds optional feature contributions during scoring.
+Challenge 3 applies the artist penalty during ranking, after
+`score_song()` calculates the base score. Challenge 4 formats the ranked
+results for display. These steps let the scoring, diversity, and display
+options work together.

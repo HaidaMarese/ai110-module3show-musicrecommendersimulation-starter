@@ -1,19 +1,19 @@
-id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
-1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18
-2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71
-3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10
-4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86
-5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05
-6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92
-7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89
-8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
-9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
-10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
-11,Neon Tide,Crystal Harbor,electronic,energizing,0.88,128,0.73,0.84,0.08
-12,Rainwashed Letters,Elena Moss,country,sad,0.41,82,0.22,0.48,0.76
-13,Golden Hour Memory,The Amber Roads,soul,nostalgic,0.64,96,0.62,0.69,0.42
-14,Crimson Pulse,Kira Flame,metal,aggressive,0.96,164,0.31,0.52,0.04
-15,Winter Signal,North Meridian,classical,sad,0.90,138,0.19,0.33,0.81
-16,Dancing After Dark,Velvet Circuit,disco,playful,0.86,122,0.88,0.91,0.11
-17,Quiet Atlas,Harbor Maps,folk,peaceful,0.46,74,0.58,0.57,0.83
-18,Summer Static,Maya Juniper,reggae,uplifting,0.69,102,0.79,0.77,0.28
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,popularity,release_decade,detailed_mood,instrumentalness,vocal_language
+1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18,82,2020s,uplifting,0.12,English
+2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71,76,2020s,laid-back,0.88,Instrumental
+3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10,88,2010s,aggressive,0.08,English
+4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86,71,2010s,soothing,0.92,Instrumental
+5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05,91,2020s,driven,0.04,English
+6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92,69,2010s,ethereal,0.96,Instrumental
+7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89,74,2010s,cozy,0.76,English
+8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22,84,2020s,nocturnal,0.44,Instrumental
+9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78,79,2020s,concentrative,0.82,Instrumental
+10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35,73,2020s,uplifting,0.18,English
+11,Neon Tide,Crystal Harbor,electronic,energizing,0.88,128,0.73,0.84,0.08,86,2020s,electric,0.06,English
+12,Rainwashed Letters,Elena Moss,country,sad,0.41,82,0.22,0.48,0.76,67,2010s,melancholic,0.22,English
+13,Golden Hour Memory,The Amber Roads,soul,nostalgic,0.64,96,0.62,0.69,0.42,77,2010s,warm,0.31,English
+14,Crimson Pulse,Kira Flame,metal,aggressive,0.96,164,0.31,0.52,0.04,90,2020s,aggressive,0.03,English
+15,Winter Signal,North Meridian,classical,sad,0.90,138,0.19,0.33,0.81,65,2000s,melancholic,0.98,Instrumental
+16,Dancing After Dark,Velvet Circuit,disco,playful,0.86,122,0.88,0.91,0.11,80,2010s,festive,0.09,English
+17,Quiet Atlas,Harbor Maps,folk,peaceful,0.46,74,0.58,0.57,0.83,63,2020s,tranquil,0.87,English
+18,Summer Static,Maya Juniper,reggae,uplifting,0.69,102,0.79,0.77,0.28,72,2020s,sunny,0.26,English
