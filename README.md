@@ -124,6 +124,7 @@ python -m src.main --mode energy-focused
 
 For Chill Lofi, Focus Flow ranks third in Genre-First mode. In
 Energy-Focused mode, Spacewalk Thoughts moves from fourth to third.
+
 See the [AI Interactions Log](ai_interactions.md) for the scoring mode
 design and verification notes.
 
@@ -150,7 +151,7 @@ in both modes.
 | Energy-Focused | Rank 4, score 2.70 | Rank 4, score 2.20 |
 
 Both runs with diversity displayed `artist diversity penalty (-0.50)`.
-Focus Flow's score dropped in both modes and its rank stayed the same
+Focus Flow's score dropped in both modes, and its rank stayed the same
 within each mode.
 
 ### Running Tests
