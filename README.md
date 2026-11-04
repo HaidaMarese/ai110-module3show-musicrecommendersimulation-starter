@@ -45,6 +45,8 @@ which is `0.10` above its target.
 
 ### Algorithm Recipe
 
+The default Genre-First mode uses these rules.
+
 1. Add **2.0 points** for an exact genre match.
 2. Add **1.0 point** for an exact mood match.
 3. Add `1.0 - abs(song_energy - target_energy)` for energy similarity.
@@ -103,6 +105,27 @@ Run these commands from the project folder on Windows.
    python -m src.main
    ```
 
+### Optional Challenge 2 — Multiple Scoring Modes
+
+The app defaults to Genre-First. To give energy similarity more weight,
+select Energy-Focused with `--mode`. Both modes use the same scoring
+formula with different weights.
+
+| Mode | Genre weight | Mood weight | Energy weight |
+|---|---:|---:|---:|
+| Genre-First (default) | 2.0 | 1.0 | 1.0 |
+| Energy-Focused | 1.0 | 1.0 | 2.0 |
+
+```cmd
+python -m src.main
+python -m src.main --mode energy-focused
+```
+
+For Chill Lofi, Focus Flow ranks third in Genre-First mode. In
+Energy-Focused mode, Spacewalk Thoughts moves from fourth to third.
+See the [AI Interactions Log](ai_interactions.md) for the design and
+verification notes.
+
 ### Running Tests
 
 Run the starter tests from the project folder. If your virtual environment
@@ -112,15 +135,15 @@ needs `pytest`, install it with `python -m pip install pytest`.
 python -m pytest
 ```
 
-The two starter tests in `tests/test_recommender.py` passed during baseline
-verification.
+Both starter tests in `tests/test_recommender.py` passed after I verified
+the two scoring modes.
 
 ---
 
 ## Sample Recommendation Output
 
 Running `python -m src.main` produced the following results with the
-baseline weights.
+baseline Genre-First weights.
 
 ```text
 Loaded songs: 18
@@ -199,7 +222,8 @@ so the change in genre and mood weights reversed their order.
 I ran the same 18-song catalog and three taste profiles with two sets
 of weights. In the second run, I reduced the genre weight from `2.0`
 to `1.0` and increased the energy weight from `1.0` to `2.0`. The mood
-weight stayed at `1.0`.
+weight stayed at `1.0`. I later verified the same results using the
+selectable Energy-Focused mode.
 
 | Chill Lofi recommendation | Baseline rank | Baseline score | Experiment rank | Experiment score |
 |---|---:|---:|---:|---:|
@@ -215,7 +239,6 @@ gives the listener's genre preference more influence.
 
 Library Rain stayed first for Chill Lofi. High-Energy Pop and Deep
 Intense Rock kept the same top-five order, although their scores changed.
-The sample output above uses the baseline weights.
 
 ---
 
@@ -226,8 +249,8 @@ The sample output above uses the baseline weights.
   energy target. Someone who enjoys both chill lofi and chill ambient
   can specify only one favorite genre per profile.
 - Exact genre matching treats `pop` and `indie pop` as separate labels.
-  Combined with the two-point genre bonus, this can limit discovery
-  across related genres.
+  Combined with the two-point genre bonus in the default mode, this can
+  limit discovery across related genres.
 - The score relies on the catalog's labels and energy values. Evaluating
   whether the suggestions fit real listeners would require their feedback.
 
