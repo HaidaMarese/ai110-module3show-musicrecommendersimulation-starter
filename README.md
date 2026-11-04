@@ -3,9 +3,9 @@
 ## Project Summary
 
 VibeFinder 1.0 is a music recommender simulation that suggests songs based
-on a listener's favorite genre, favorite mood, and preferred energy level.
-It compares those preferences with song attributes in a CSV catalog, ranks
-the songs by score, and explains how each recommendation earned its points.
+on a listener's favorite genre, favorite mood, and target energy. It
+compares those preferences with song attributes in a CSV catalog, ranks
+the songs by score, and explains what contributed to each recommendation.
 
 The catalog contains 18 songs, including 10 starter songs and eight
 fictional additions. The expanded catalog covers more genres and moods
@@ -20,13 +20,13 @@ Real-world recommenders can use collaborative filtering to suggest items
 that people with similar listening habits enjoy. They can also use
 content-based filtering to compare item features with a listener's
 preferences. VibeFinder uses content-based filtering with taste profiles
-defined directly in the program.
+defined in the program.
 
 - **Song.** Each record contains `id`, `title`, `artist`, `genre`, `mood`,
   `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`.
   The scoring rule uses `genre`, `mood`, and `energy`.
-- **UserProfile.** Each profile stores `favorite_genre`, `favorite_mood`,
-  and `target_energy`.
+- **UserProfile.** The scoring rule reads `favorite_genre`, `favorite_mood`,
+  and `target_energy` from the profile.
 - **Recommender.** The recommender scores each song, records the reasons
   for its score, and returns the five highest-scoring songs.
 
@@ -39,7 +39,7 @@ defined directly in the program.
 | Deep Intense Rock | `rock` | `intense` | 0.90 |
 
 Storm Runner matches the Deep Intense Rock profile's genre and mood.
-Its energy of `0.91` is close to the `0.90` target. Library Rain matches
+Its energy of `0.91` is only `0.01` above the target. Library Rain matches
 the Chill Lofi profile's genre and mood and has an energy of `0.35`,
 which is `0.10` above its target.
 
@@ -51,12 +51,12 @@ which is `0.10` above its target.
    Songs closer to the target earn more points. An exact energy match
    earns **1.0 point**.
 4. Sort the songs from highest to lowest score and show the top five.
-   If songs have the same score, keep their original CSV order.
+   Songs with equal scores keep their original CSV order.
 
 The maximum score is **4.0**. The two-point genre bonus can put a song
-from the preferred genre above a song that better matches the requested
-mood. For example, Gym Hero gets the full genre bonus for `pop`, while
-Rooftop Lights receives zero genre points because its label is `indie pop`.
+from the preferred genre above one that better matches the requested
+mood. Gym Hero gets the full genre bonus for `pop`, while Rooftop Lights
+receives zero genre points because its label is `indie pop`.
 
 **Data flow**
 
@@ -70,7 +70,7 @@ Rooftop Lights receives zero genre points because its label is `indie pop`.
 
 Run these commands from the project folder on Windows.
 
-1. Create a virtual environment if `.venv` does not already exist.
+1. Create a virtual environment if you need one.
 
    ```cmd
    py -3 -m venv .venv
@@ -105,14 +105,15 @@ Run these commands from the project folder on Windows.
 
 ### Running Tests
 
-Run the starter tests from the project folder. If `pytest` is missing
-from your virtual environment, install it with `python -m pip install pytest`.
+Run the starter tests from the project folder. If your virtual environment
+needs `pytest`, install it with `python -m pip install pytest`.
 
 ```cmd
 python -m pytest
 ```
 
-The starter test file is `tests/test_recommender.py`.
+The two starter tests in `tests/test_recommender.py` passed during baseline
+verification.
 
 ---
 
@@ -164,8 +165,6 @@ Favorite genre: rock | Favorite mood: intense | Target energy: 0.90
    Reasons: energy similarity (+0.96)
 ```
 
-<!-- Optional screenshot or video link. -->
-
 ---
 
 ## Experiments You Tried
@@ -173,39 +172,50 @@ Favorite genre: rock | Favorite mood: intense | Target energy: 0.90
 ### Manual Scoring Check
 
 I applied the baseline scoring rule by hand to three songs for the
-High-Energy Pop profile. Sunrise City scored highest among the three
-because it matched both genre and mood and was only `0.03` away from the
-energy target. Gym Hero scored higher than Rooftop Lights because its
-exact `pop` match earned two points, while Rooftop Lights earned one point
-for matching the `happy` mood.
+High-Energy Pop profile. Sunrise City scored highest because it matched
+both genre and mood and was only `0.03` away from the energy target.
+Gym Hero scored higher than Rooftop Lights because its exact `pop` match
+earned two points, while Rooftop Lights earned one point for matching the
+`happy` mood.
 
 ### Manual Weight Comparison
 
 I compared two weighting strategies by hand for the High-Energy Pop
-profile. Both strategies used the same energy similarity formula and
-kept the energy weight at `1.0`.
+profile. Both used the same energy similarity formula and kept the
+energy weight at `1.0`.
 
 | Strategy | Genre weight | Mood weight | Energy weight | Gym Hero | Rooftop Lights |
 |---|---:|---:|---:|---:|---:|
 | Baseline | 2.0 | 1.0 | 1.0 | 2.92 | 1.91 |
 | Mood-first | 1.0 | 2.0 | 1.0 | 1.92 | 2.91 |
 
-Gym Hero ranked higher under the baseline because its genre matched.
-Rooftop Lights ranked higher under the mood-first strategy because its
-mood matched. Their energy similarity scores differed by only `0.01`.
-Changing the genre and mood weights reversed their order. The simulation
-uses the baseline weights.
+Gym Hero ranked higher with the baseline because its genre matched.
+Rooftop Lights ranked higher with the mood-first weights because its
+mood matched. Their energy similarity scores differed by only `0.01`,
+so the change in genre and mood weights reversed their order.
 
-### Planned Weight Experiment
+### CLI Weight Experiment
 
-I will compare the baseline with a version that lowers the genre weight
-from `2.0` to `1.0` and raises the energy weight from `1.0` to `2.0`.
-The mood weight will stay at `1.0`. I will use the same catalog and
-profiles for both runs to see how the new weights affect the scores
-and top-five rankings.
+I ran the same 18-song catalog and three taste profiles with two sets
+of weights. In the second run, I reduced the genre weight from `2.0`
+to `1.0` and increased the energy weight from `1.0` to `2.0`. The mood
+weight stayed at `1.0`.
 
-<!-- After running the CLI experiment, record before-and-after ranks or
-     scores for specific songs and explain what changed. -->
+| Chill Lofi recommendation | Baseline rank | Baseline score | Experiment rank | Experiment score |
+|---|---:|---:|---:|---:|
+| Spacewalk Thoughts | 4 | 1.97 | 3 | 2.94 |
+| Focus Flow | 3 | 2.85 | 4 | 2.70 |
+
+Spacewalk Thoughts overtook Focus Flow because it matched the `chill`
+mood and its energy of `0.28` was only `0.03` away from the target of
+`0.25`. Focus Flow matched the `lofi` genre, had a `focused` mood, and
+its energy of `0.40` was `0.15` away from the target. The revised order
+better reflects the requested mood and low energy. The baseline order
+gives the listener's genre preference more influence.
+
+Library Rain stayed first for Chill Lofi. High-Energy Pop and Deep
+Intense Rock kept the same top-five order, although their scores changed.
+The sample output above uses the baseline weights.
 
 ---
 
@@ -225,17 +235,18 @@ and top-five rankings.
 
 ## Reflection
 
-See the [Model Card](model_card.md) for the evaluation and further
-discussion of the system's limitations.
+See the [Model Card](model_card.md) for the profile comparisons, edge-case
+test, and further discussion of the system's limitations.
 
-Calculating the scores by hand helped me see how a recommender turns song
-attributes and user preferences into a ranked list. The individual scores
-showed how each song fit the profile, and comparing the totals showed why
-some songs appeared above others.
+Calculating scores by hand helped me understand how a recommender turns
+song attributes and user preferences into a ranked list. I used an AI
+coding assistant to compare scoring strategies and work through the
+implementation. I checked the sample scores by hand, verified the catalog
+size, and ran the starter tests.
 
-The comparison between Gym Hero and Rooftop Lights showed me how the
-weights and genre labels can shape what a listener discovers. With the
-baseline weights, an intense pop song ranked above a happy indie-pop song
-for someone looking for happy pop. Giving mood more weight reversed their
-order in my hand calculation. Next, I want to see whether increasing the
-energy weight changes which songs appear in the top five.
+I was surprised that Gym Hero ranked above Rooftop Lights for a listener
+looking for happy pop. The exact genre bonus outweighed the mood match.
+The CLI experiment showed how weighting energy more heavily could bring
+a song from another genre higher in the list when it matched the mood
+and came closer to the target energy. Next, I would collect listener
+ratings to compare which weighting strategy people find more relevant.

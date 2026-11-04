@@ -82,12 +82,13 @@ points for Deep Intense Rock.
 The catalog is small, and several genres, including rock, ambient, and
 classical, have only one track each. Each profile captures one favorite
 genre and mood, which limits how well it represents listeners whose
-preferences change with the situation. For High-Energy Pop, the two-point
-genre bonus placed **Gym Hero** above **Rooftop Lights** even though
-Rooftop Lights matched the requested happy mood. This preference for
-exact genre labels could create a filter bubble by repeatedly favoring
-a familiar genre over related music. The ranking also leaves out
-features such as tempo, danceability, and acousticness.
+preferences change with the situation. In the Sad and High Energy test,
+the genre bonus placed **Storm Runner** above **Winter Signal**, even
+though Winter Signal matched the requested mood and energy exactly.
+Repeatedly favoring exact genre matches could create a filter bubble
+by reducing exposure to tracks from other genres that fit the listener's
+mood. The ranking also leaves out features such as tempo, danceability,
+and acousticness.
 
 ---
 
@@ -95,7 +96,8 @@ features such as tempo, danceability, and acousticness.
 
 I ran the CLI with the baseline weights and confirmed that it loaded
 18 songs and displayed five recommendations with scores and reasons for
-each profile. Both starter tests passed.
+each profile. Both starter tests passed. The README shows the full
+baseline output for the three regular profiles.
 
 | Profile | Preferred genre | Preferred mood | Target energy | First recommendation | Score |
 |---|---|---|---:|---|---:|
@@ -127,19 +129,43 @@ their order. Rooftop Lights scored **2.91**, and Gym Hero scored **1.92**.
 This showed how a change in weights can change the recommendation even
 when the songs and listener preferences stay the same.
 
-### Planned Edge-Case and CLI Weight Tests
+### Edge-Case Test
 
-I will test a profile that requests rock, a sad mood, and energy of `0.90`.
-I will compare Storm Runner, which matches the genre, with Winter Signal,
-which matches the mood and energy target.
+I ran a fourth profile that requested rock, a sad mood, and an energy
+level of `0.90`.
 
-I will also rerun the three regular profiles with genre worth one point,
+```text
+Sad and High Energy - Top 5 Recommendations
+Favorite genre: rock | Favorite mood: sad | Target energy: 0.90
+1. Storm Runner | Score: 2.99
+   Reasons: genre match (+2.00), energy similarity (+0.99)
+2. Winter Signal | Score: 2.00
+   Reasons: mood match (+1.00), energy similarity (+1.00)
+3. Rainwashed Letters | Score: 1.51
+   Reasons: mood match (+1.00), energy similarity (+0.51)
+4. Neon Tide | Score: 0.98
+   Reasons: energy similarity (+0.98)
+5. Gym Hero | Score: 0.97
+   Reasons: energy similarity (+0.97)
+```
+
+Storm Runner ranked first because it matched rock and its energy was
+only `0.01` above the target. Winter Signal matched the sad mood and hit
+the energy target exactly, but it ranked second because its genre is
+classical. Rainwashed Letters also matched the sad mood and ranked
+third because its energy was farther from the target.
+
+### Planned CLI Weight Experiment
+
+I will rerun the three regular profiles with genre worth one point,
 mood worth one point, and energy similarity worth up to two points.
-I will compare the new rankings with the baseline and describe whether
-the changes fit the profiles better based on my musical judgment.
+I will keep the catalog and profiles the same for both runs. For Chill
+Lofi, I will compare the ranks and scores of Spacewalk Thoughts and
+Focus Flow and explain whether the new order fits the profile better
+based on my musical judgment.
 
-<!-- Replace this subsection with the actual edge-case result and the
-     before-and-after ranks or scores after running both tests. -->
+<!-- Replace this subsection with the observed ranks, scores, and your
+     interpretation after running the CLI weight experiment. -->
 
 ---
 
