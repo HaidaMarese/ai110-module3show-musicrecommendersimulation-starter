@@ -7,6 +7,12 @@ GENRE_WEIGHT = 2.0
 MOOD_WEIGHT = 1.0
 ENERGY_WEIGHT = 1.0
 
+# Weights are ordered as genre, mood, and energy.
+SCORING_MODES = {
+    "genre-first": (GENRE_WEIGHT, MOOD_WEIGHT, ENERGY_WEIGHT),
+    "energy-focused": (1.0, 1.0, 2.0),
+}
+
 
 @dataclass
 class Song:
@@ -71,25 +77,28 @@ def load_songs(csv_path: str) -> List[Dict]:
     return songs
 
 
-def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
+def score_song(
+    user_prefs: Dict, song: Dict, *, mode: str = "genre-first"
+) -> Tuple[float, List[str]]:
     """Return a song's relevance score and the reasons for its points."""
+    genre_weight, mood_weight, energy_weight = SCORING_MODES[mode]
     score = 0.0
     reasons = []
 
     genre = song["genre"].strip().casefold()
     favorite_genre = user_prefs["favorite_genre"].strip().casefold()
     if genre == favorite_genre:
-        score += GENRE_WEIGHT
-        reasons.append(f"genre match (+{GENRE_WEIGHT:.2f})")
+        score += genre_weight
+        reasons.append(f"genre match (+{genre_weight:.2f})")
 
     mood = song["mood"].strip().casefold()
     favorite_mood = user_prefs["favorite_mood"].strip().casefold()
     if mood == favorite_mood:
-        score += MOOD_WEIGHT
-        reasons.append(f"mood match (+{MOOD_WEIGHT:.2f})")
+        score += mood_weight
+        reasons.append(f"mood match (+{mood_weight:.2f})")
 
     energy_gap = abs(song["energy"] - user_prefs["target_energy"])
-    energy_points = ENERGY_WEIGHT * (1.0 - energy_gap)
+    energy_points = energy_weight * (1.0 - energy_gap)
     score += energy_points
     reasons.append(f"energy similarity (+{energy_points:.2f})")
 
@@ -97,13 +106,17 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
 
 def recommend_songs(
-    user_prefs: Dict, songs: List[Dict], k: int = 5
+    user_prefs: Dict,
+    songs: List[Dict],
+    k: int = 5,
+    *,
+    mode: str = "genre-first",
 ) -> List[Tuple[Dict, float, str]]:
     """Return the top k songs with their scores and explanations."""
     recommendations = []
 
     for song in songs:
-        score, reasons = score_song(user_prefs, song)
+        score, reasons = score_song(user_prefs, song, mode=mode)
         recommendations.append((song, score, ", ".join(reasons)))
 
     recommendations.sort(key=lambda result: result[1], reverse=True)
