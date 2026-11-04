@@ -12,11 +12,11 @@ VibeFinder is a classroom simulation that recommends up to five songs
 for a given taste profile. Each result includes a score and an explanation
 of what contributed to that score.
 
-The model assumes that a listener can describe what they want using one
-favorite genre, one favorite mood, and one target energy level. It is
-designed to demonstrate how song attributes and user preferences affect
-a ranked list. Production music personalization and predictions about
-what real listeners will enjoy are outside its intended use.
+The model represents a listener's preferences with one favorite genre,
+one favorite mood, and one target energy level. It demonstrates how
+song attributes and user preferences affect a ranked list. Production
+music personalization and predictions about real listeners' enjoyment
+are outside its intended use.
 
 ---
 
@@ -27,9 +27,9 @@ favorite mood, and target energy.
 
 - A song earns **2 points** when its genre matches the preferred genre.
 - It earns **1 point** when its mood matches the preferred mood.
-- It earns **up to 1 point** for energy similarity. The model takes the
-  distance between the song's energy and the listener's target and
-  subtracts that distance from one. An exact match earns the full point.
+- It earns **up to 1 point** for energy similarity. The model subtracts
+  the distance between the song's energy and the listener's target from
+  one. An exact match earns the full point.
 
 The model adds these points for a maximum score of **4 points**. It ranks
 the songs from highest to lowest score and displays the top five. Songs
@@ -49,10 +49,10 @@ eight fictional tracks to expand the range of genres and moods.
 
 The CSV stores each song's ID, title, artist, genre, mood, energy, tempo,
 valence, danceability, and acousticness. The model uses genre, mood, and
-energy for scoring. Genres include pop, lofi, rock, ambient, jazz, and
-indie pop. The additions include electronic, country, soul, metal,
-classical, disco, folk, and reggae. Moods include happy, chill, intense,
-sad, and nostalgic.
+energy for scoring. Starter genres include pop, lofi, rock, ambient,
+jazz, synthwave, and indie pop. The additions cover electronic, country,
+soul, metal, classical, disco, folk, and reggae. Moods include happy,
+chill, intense, sad, and nostalgic.
 
 The catalog contains song labels and attributes. Listener ratings,
 listening history, and feedback about recommendation quality are absent.
@@ -63,15 +63,15 @@ listening history, and feedback about recommendation quality are absent.
 
 The model gives clear results when a track matches the requested genre
 and mood and has energy close to the target. **Sunrise City** ranked
-first for High-Energy Pop with **3.97**. Its happy mood and energy of
-`0.82` fit the profile's target of `0.85`.
+first for High-Energy Pop with **3.97**. Its pop genre, happy mood, and
+energy of `0.82` fit the profile's preferences and `0.85` energy target.
 
 **Library Rain** ranked first for Chill Lofi with **3.90**, while
 **Storm Runner** ranked first for Deep Intense Rock with **3.99**.
-These results fit my intuition because a relaxed lofi profile and an
-intense rock profile should produce different suggestions.
+These results fit my intuition. Library Rain is labeled chill and has
+low energy, while Storm Runner is labeled intense and has high energy.
 
-The explanations also show why the same song can appeal to different
+The explanations show why the same song can rank well for different
 profiles. **Gym Hero** earned genre points for High-Energy Pop and mood
 points for Deep Intense Rock.
 
@@ -96,8 +96,8 @@ and acousticness.
 
 I ran the CLI with the baseline weights and confirmed that it loaded
 18 songs and displayed five recommendations with scores and reasons for
-each profile. Both starter tests passed. The README shows the full
-baseline output for the three regular profiles.
+each profile. Both starter tests passed. The [README](README.md) shows
+the full baseline output for the three regular profiles.
 
 | Profile | Preferred genre | Preferred mood | Target energy | First recommendation | Score |
 |---|---|---|---:|---|---:|
@@ -110,15 +110,15 @@ baseline output for the three regular profiles.
 - **High-Energy Pop and Chill Lofi.** Sunrise City led the pop list
   because it matched both categories and was close to the higher energy
   target. Library Rain led the lofi list because it matched both
-  categories and had lower energy.
+  categories and was close to the lower energy target.
 - **High-Energy Pop and Deep Intense Rock.** Gym Hero ranked second in
   both lists. It earned the genre bonus for the pop profile and the mood
   bonus for the rock profile. Its high energy helped it in both.
 - **Chill Lofi and Deep Intense Rock.** Spacewalk Thoughts ranked fourth
   for Chill Lofi because it matched the chill mood and was close to the
-  energy target. Winter Signal ranked third for Deep Intense Rock because
-  its energy exactly matched the target, earning all of its points from
-  energy similarity.
+  low energy target. Winter Signal ranked third for Deep Intense Rock
+  because its energy exactly matched the higher target, earning all of
+  its points from energy similarity.
 
 ### Manual Weight Comparison
 
@@ -126,8 +126,7 @@ I compared Gym Hero and Rooftop Lights by hand for the High-Energy Pop
 profile. With baseline weights, Gym Hero scored **2.92** and Rooftop Lights
 scored **1.91**. Giving mood two points and genre one point reversed
 their order. Rooftop Lights scored **2.91**, and Gym Hero scored **1.92**.
-This showed how a change in weights can change the recommendation even
-when the songs and listener preferences stay the same.
+The songs and listener preferences stayed the same.
 
 ### Edge-Case Test
 
@@ -151,21 +150,34 @@ Favorite genre: rock | Favorite mood: sad | Target energy: 0.90
 
 Storm Runner ranked first because it matched rock and its energy was
 only `0.01` above the target. Winter Signal matched the sad mood and hit
-the energy target exactly, but it ranked second because its genre is
-classical. Rainwashed Letters also matched the sad mood and ranked
-third because its energy was farther from the target.
+the energy target exactly. It placed second because its classical genre
+earned zero genre points. Rainwashed Letters also matched the sad mood
+and ranked third because its energy was farther from the target.
 
-### Planned CLI Weight Experiment
+### CLI Weight Experiment
 
-I will rerun the three regular profiles with genre worth one point,
-mood worth one point, and energy similarity worth up to two points.
-I will keep the catalog and profiles the same for both runs. For Chill
-Lofi, I will compare the ranks and scores of Spacewalk Thoughts and
-Focus Flow and explain whether the new order fits the profile better
-based on my musical judgment.
+I ran the same 18-song catalog and three regular profiles with two sets
+of weights. In the second run, I lowered the genre weight from `2.0` to
+`1.0` and doubled the energy weight from `1.0` to `2.0`. The mood weight
+stayed at `1.0`.
 
-<!-- Replace this subsection with the observed ranks, scores, and your
-     interpretation after running the CLI weight experiment. -->
+| Chill Lofi song | Baseline rank | Baseline score | Experiment rank | Experiment score |
+|---|---:|---:|---:|---:|
+| Spacewalk Thoughts | 4 | 1.97 | 3 | 2.94 |
+| Focus Flow | 3 | 2.85 | 4 | 2.70 |
+
+Spacewalk Thoughts moved ahead because it matched the chill mood and
+its energy of `0.28` was only `0.03` away from the `0.25` target.
+Focus Flow matched the lofi genre, had a focused mood, and was `0.15`
+away from the energy target. The revised order better reflects the
+requested mood and low energy. Listener ratings would help determine
+whether people actually prefer it.
+
+Library Rain stayed first for Chill Lofi. The top-five order for
+High-Energy Pop and Deep Intense Rock stayed the same, although their
+scores changed. I restored the baseline weights after the experiment
+and reran the CLI and starter tests. The baseline output matched the
+README, and both tests passed.
 
 ---
 
@@ -173,10 +185,10 @@ based on my musical judgment.
 
 - Allow multiple preferred genres and moods so a profile can reflect more
   than one listening preference.
-- Expand the catalog and test whether including a strong cross-genre match
+- Expand the catalog and test whether including strong cross-genre matches
   makes the top five more varied while keeping the recommendations relevant.
-- Collect listener ratings to evaluate whether people find the results
-  relevant and use that feedback to compare weighting strategies.
+- Collect listener ratings and use that feedback to compare weighting
+  strategies.
 
 ---
 
@@ -190,9 +202,9 @@ can produce recommendations that feel personal and still miss part of
 what the listener wants.
 
 I used an AI coding assistant to compare scoring strategies and work
-through the Python implementation. I checked the sample scores by hand,
+through the Python implementation. I checked sample scores by hand,
 verified that the CSV contained 18 songs, and ran the starter tests.
-The project made me think more about how the features and weights behind
-a music app shape which songs I discover. Next, I would compare the
-rankings with listener ratings to see which weighting choices fit real
-preferences.
+The CLI experiment showed me how giving energy more weight could bring
+an ambient song higher in a lofi playlist when it fit the mood and
+energy target. Next, I would compare the rankings with listener ratings
+to see which weighting choices fit real preferences.
